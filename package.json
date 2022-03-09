@@ -1,0 +1,25 @@
+{
+  "name": "candy-machine-api-backend",
+  "version": "1.0.0",
+  "description": "Takes data from a react app and generates a candy machine",
+  "main": "index.js",
+  "scripts": {
+    "start": "node server/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Sankey5/Candy-Machine-Api-Backend.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Sankey5/Candy-Machine-Api-Backend/issues"
+  },
+  "homepage": "https://github.com/Sankey5/Candy-Machine-Api-Backend#readme",
+  "dependencies": {
+    "body-parser": "^1.19.2",
+    "cors": "^2.8.5",
+    "express": "^4.17.3"
+  }
+}
