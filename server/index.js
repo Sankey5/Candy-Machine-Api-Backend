@@ -11,79 +11,75 @@ require("dotenv").config();
 const PORT = process.env.PORT || 3001;
 const ASSETS_PATH = "/root/api-assets/";
 
-// Helper functions
-
+// Initialize API app
 const app = express();
 app.use(bp.json());
 app.use(bp.urlencoded({ extended: true }));
 app.use(cors());
 
-app.post("/cm", (req, res) => {
+// Endpoint for uploading the Candy Machine config
+app.post("/cm/:project", (req, res) => {
+  const projectName = req.params.project;
+  const projectPath = path.join(ASSETS_PATH, projectName);
   console.log(req.body);
-  const projectPath = path.join(ASSETS_PATH, req.params.project.name);
   console.log("Candy Machine config project path: ", projectPath);
+
   // Validate the candy machine configuration
   //const config = validate(req.body);
 
   // Create the project directory if it does not exist
-  if (!fs.existsSync(projectPath)) {
-    fsPromises.mkdir(projectPath);
-  }
+  createProjectDir(projectPath);
 
-  // Repeat projects
-  if (
-    fs.exsitsSync(
-      path.join(projectPath, `${req.params.project.name}_cm_config.json`)
-    )
-  ) {
-    res.status(400).send("Project Candy Machine creation already started");
+  // Repeat projects will return a 400 error
+  if (fs.exsitsSync(path.join(projectPath, `${projectName}_cm_config.json`))) {
+    res
+      .status(400)
+      .send({ message: "Project Candy Machine config already uploaded" });
     //return;
   }
 
-  // Write the config file to the correct project path
-  fsPromises.writeFile(
-    path.join(projectPath, `${req.params.project.name}_cm_config.json`),
-    req.body.cm
-  );
+  try {
+    // Write the config file to the correct project path
+    fsPromises.writeFile(
+      path.join(projectPath, `${projectName}_cm_config.json`),
+      req.body.cm
+    );
 
-  // Successfully uploaded the candy machine config
-  res.send({ message: "Candy Machine config successfully updated" });
+    // Successfully uploaded the candy machine config
+    res.send({ message: "Candy Machine config successfully uploaded" });
+  } catch (err) {
+    // Error writing file
+    console.log(`Error writing ${projectName}_cm_config.json}`);
+    res.status(500).send({ message: `Error writing config file` });
+  }
 });
 
-app.post("/files", (req, res) => {
+// Endpoint to upload files for a candy machine
+app.post("/files/:project/:fileName/:id", (req, res) => {
+  const projectName = req.params.project;
+  const projectPath = path.join(ASSETS_PATH + projectName);
+  const fileName = `${req.params.id}_${req.params.fileName}`;
   console.log("Files: ", req.body);
-  const projectPath = ASSETS_PATH + req.params.project.name;
   console.log("Files Project path: ", projectPath);
 
   // Create the project directory if it does not exist
-  if (!fs.existsSync(projectPath)) {
-    fsPromises.mkdir(projectPath);
-  }
+  createProjectDir(projectPath);
+
   try {
     // Write the current chuck to the project folder
-    fsPromises.writeFile(
-      path.join(projectPath, req.params.id + "_" + req.params.fileName),
-      req.body
-    );
+    fsPromises.writeFile(path.join(projectPath, fileName), req.body);
 
     // Return a success message if no errors occur
-    res.send(
-      `Successfully wrote file: ${req.params.id + "_" + req.params.fileName}`
-    );
+    res.send({ message: `Successfully wrote file: ${fileName}` });
   } catch (err) {
-    console.log(
-      `Error writing file ${req.params.id + "_" + req.params.fileName}`
-    );
-    res
-      .status(500)
-      .send(
-        `Error writing asset file ${req.params.id + "_" + req.params.fileName}`,
-        error
-      );
+    // Return a 500 error if the writing error fails
+    console.log(`Error writing file ${fileName}`);
+    res.status(500).send({ message: `Error writing asset file ${fileName}` });
   }
 });
 
-app.post("/complete", (req, res) => {
+// Endpoint for signaling that the file upload has finished
+app.post("/complete/:project", (req, res) => {
   console.log("Complete: ", req.body);
 
   // Execute the candy machine to be created
@@ -94,6 +90,15 @@ app.post("/complete", (req, res) => {
 //app.get("/cm", (req, res) => {
 //
 // })
+
+// Helper functions
+
+const createProjectDir = (projectPath) => {
+  // Create the project directory if it does not exist
+  if (!fs.existsSync(projectPath)) {
+    fsPromises.mkdir(projectPath);
+  }
+};
 
 const loading = () => {
   // Loop
