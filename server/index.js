@@ -1,6 +1,7 @@
 const express = require("express");
 const bp = require("body-parser");
 const cors = require("cors");
+const fs = require("fs");
 const validate = require("./validate");
 require("dotenv").config();
 
@@ -22,7 +23,12 @@ app.post("/cm", (req, res) => {
 });
 
 app.post("/files", (req, res) => {
-  console.log(req.body);
+  console.log("Files: ", req.body);
+  fs.write();
+});
+
+app.post("/complete", (req, res) => {
+  console.log("Complete: ", req.body);
 });
 
 // Get candy machine status of all currently creating candy machines
