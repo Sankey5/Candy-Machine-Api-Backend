@@ -19,9 +19,9 @@ app.use(cors());
 
 // Endpoint for uploading the Candy Machine config
 app.post("/cm/:project", (req, res) => {
+  console.log(req.body);
   const projectName = req.params.project;
   const projectPath = path.join(ASSETS_PATH, projectName);
-  console.log(req.body);
   console.log("Candy Machine config project path: ", projectPath);
 
   // Validate the candy machine configuration
