@@ -20,6 +20,7 @@ app.use(cors());
 // Endpoint for uploading the Candy Machine config
 app.post("/cm/:project", (req, res) => {
   console.log(req.body);
+  console.log(req.params);
   const projectName = req.params.project;
   const projectPath = path.join(ASSETS_PATH, projectName);
   console.log("Candy Machine config project path: ", projectPath);
@@ -31,7 +32,7 @@ app.post("/cm/:project", (req, res) => {
   createProjectDir(projectPath);
 
   // Repeat projects will return a 400 error
-  if (fs.exsitsSync(path.join(projectPath, `${projectName}_cm_config.json`))) {
+  if (fs.existsSync(path.join(projectPath, `${projectName}_cm_config.json`))) {
     res
       .status(400)
       .send({ message: "Project Candy Machine config already uploaded" });
